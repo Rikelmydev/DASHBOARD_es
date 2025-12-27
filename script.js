@@ -17,7 +17,11 @@ class GGMAXManager {
             totalVenda: 0
         };
 
-        this.apiBaseUrl = window.location.origin + '/api';
+        // Remova esta linha:
+        // this.apiBaseUrl = window.location.origin + '/api';
+        
+        // Use caminhos relativos para a API
+        this.apiBaseUrl = ''; // Caminho relativo
 
         // Inicializar dados
         this.init();
@@ -43,10 +47,12 @@ class GGMAXManager {
         try {
             // Verificar se já existem dados
             const [servicos, fornecedores, clientes] = await Promise.all([
-                this.fetchData('/servicos'),
-                this.fetchData('/fornecedores'),
-                this.fetchData('/clientes')
+                this.fetchData('/api/servicos'),
+                this.fetchData('/api/fornecedores'),
+                this.fetchData('/api/clientes')
             ]);
+
+            console.log('Dados carregados:', { servicos, fornecedores, clientes });
 
             if (servicos.length === 0) {
                 // Carregar dados iniciais da tabela fornecida
@@ -59,7 +65,9 @@ class GGMAXManager {
 
     async fetchData(endpoint, options = {}) {
         try {
-            const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
+            console.log('Fazendo requisição para:', endpoint);
+            
+            const response = await fetch(endpoint, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -83,11 +91,27 @@ class GGMAXManager {
             { nome: "UFC Fight Pass 1 mês", categoria: "📺 Streaming Geral", descricao: "", duracao: 1, custo: 12.00, preco: 19.90, status: "ativo" },
             { nome: "Globoplay 1 mês", categoria: "📺 Streaming Geral", descricao: "", duracao: 1, custo: 10.00, preco: 17.90, status: "ativo" },
             { nome: "Globoplay 4K Anual", categoria: "📺 Streaming Geral", descricao: "", duracao: 12, custo: 45.00, preco: 79.90, status: "ativo" },
-            // ... (todos os outros serviços da tabela)
+            { nome: "Netflix Premium 1 mês", categoria: "📺 Streaming Geral", descricao: "Plano Premium 4K sem anúncios", duracao: 1, custo: 15.90, preco: 29.90, status: "ativo" },
+            { nome: "Disney+ Premium 1 mês", categoria: "📺 Streaming Geral", descricao: "Acesso completo à plataforma", duracao: 1, custo: 12.90, preco: 24.90, status: "ativo" },
+            { nome: "HBO Max 1 mês", categoria: "📺 Streaming Geral", descricao: "Catálogo completo HBO", duracao: 1, custo: 10.00, preco: 19.90, status: "ativo" },
+            { nome: "Prime Video 1 mês", categoria: "📺 Streaming Geral", descricao: "Amazon Prime Video", duracao: 1, custo: 10.00, preco: 14.90, status: "ativo" },
+            { nome: "Star+ 1 mês", categoria: "📺 Streaming Geral", descricao: "Filmes e séries, conteúdo exclusivo", duracao: 1, custo: 16.36, preco: 29.90, status: "ativo" },
+            { nome: "PlayPlus 1 mês", categoria: "📺 Streaming Geral", descricao: "Catálogo variado de streaming", duracao: 1, custo: 7.56, preco: 14.90, status: "ativo" },
+            { nome: "Hulu 1 mês", categoria: "📺 Streaming Geral", descricao: "Catálogo completo, séries exclusivas", duracao: 1, custo: 26.76, preco: 39.90, status: "ativo" },
+            { nome: "ESPN 1 mês", categoria: "⚽ Esportes", descricao: "Eventos esportivos ao vivo", duracao: 1, custo: 26.76, preco: 39.90, status: "ativo" },
+            { nome: "TNT Sports 1 mês", categoria: "⚽ Esportes", descricao: "Eventos esportivos, transmissões exclusivas", duracao: 1, custo: 17.96, preco: 29.90, status: "ativo" },
+            { nome: "Apple TV+ 1 mês", categoria: "📺 Streaming Geral", descricao: "Conteúdo Apple Original", duracao: 1, custo: 11.96, preco: 19.90, status: "ativo" },
+            { nome: "Viki 1 mês", categoria: "📺 Streaming Geral", descricao: "Dramas asiáticos, legendas em português", duracao: 1, custo: 10.40, preco: 17.90, status: "ativo" },
+            { nome: "ChatGPT Plus", categoria: "🤖 IA", descricao: "Acesso ao ChatGPT 4", duracao: 1, custo: 8.00, preco: 19.90, status: "ativo" },
+            { nome: "Spotify Premium 1 mês", categoria: "🎵 Streaming Música", descricao: "Música sem anúncios e download", duracao: 1, custo: 10.90, preco: 19.90, status: "ativo" },
+            { nome: "YouTube Music 1 mês", categoria: "🎵 Streaming Música", descricao: "Música e vídeos sem anúncios", duracao: 1, custo: 10.00, preco: 14.90, status: "ativo" },
+            { nome: "Game Pass Ultimate 1 mês", categoria: "🎮 Games", descricao: "Xbox Game Pass Ultimate", duracao: 1, custo: 45.90, preco: 69.90, status: "ativo" },
+            { nome: "PS Plus Deluxe 1 mês", categoria: "🎮 Games", descricao: "PlayStation Plus Deluxe", duracao: 1, custo: 37.90, preco: 49.90, status: "ativo" },
+            { nome: "Canva Pro 1 mês", categoria: "🛠️ Ferramentas", descricao: "Canva Pro completo", duracao: 1, custo: 14.50, preco: 24.90, status: "ativo" }
         ];
 
         for (const service of servicesData) {
-            await this.fetchData('/servicos', {
+            await this.fetchData('/api/servicos', {
                 method: 'POST',
                 body: JSON.stringify(service)
             });
@@ -95,90 +119,126 @@ class GGMAXManager {
     }
 
     setupEventListeners() {
-        // Navegação
-        document.getElementById('btn-novo-cliente').addEventListener('click', () => this.openClientModal());
-        document.getElementById('btn-novo-fornecedor').addEventListener('click', () => this.openSupplierModal());
-        document.getElementById('btn-nova-venda').addEventListener('click', () => this.openVendaModal());
-        document.getElementById('btn-novo-servico').addEventListener('click', () => this.openServicoModal());
+        // Navegação - Adicionar listeners após o DOM estar carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            // Botões de navegação
+            document.getElementById('btn-tab-dashboard').addEventListener('click', () => this.showTab('dashboard'));
+            document.getElementById('btn-tab-clientes').addEventListener('click', () => this.showTab('clientes'));
+            document.getElementById('btn-tab-fornecedores').addEventListener('click', () => this.showTab('fornecedores'));
+            document.getElementById('btn-tab-servicos').addEventListener('click', () => this.showTab('servicos'));
+            document.getElementById('btn-tab-vendas').addEventListener('click', () => this.showTab('vendas'));
+            document.getElementById('btn-tab-relatorios').addEventListener('click', () => this.showTab('relatorios'));
+            
+            // Botões de ação
+            document.getElementById('btn-novo-cliente').addEventListener('click', () => this.openClientModal());
+            document.getElementById('btn-novo-fornecedor').addEventListener('click', () => this.openSupplierModal());
+            document.getElementById('btn-nova-venda').addEventListener('click', () => this.openVendaModal());
+            document.getElementById('btn-novo-servico').addEventListener('click', () => this.openServicoModal());
 
-        // Filtros
-        document.getElementById('search-client').addEventListener('input', (e) => this.filterClients(e.target.value));
-        document.getElementById('filter-status').addEventListener('change', (e) => this.filterByStatus(e.target.value));
-        document.getElementById('search-supplier').addEventListener('input', (e) => this.filterSuppliers(e.target.value));
-        document.getElementById('search-service').addEventListener('input', (e) => this.filterServices(e.target.value));
-        
-        // Formulários
-        document.getElementById('cliente-form').addEventListener('submit', (e) => this.saveClient(e));
-        document.getElementById('fornecedor-form').addEventListener('submit', (e) => this.saveSupplier(e));
-        document.getElementById('servico-form').addEventListener('submit', (e) => this.saveServico(e));
-        document.getElementById('venda-form').addEventListener('submit', (e) => this.saveVenda(e));
+            // Filtros
+            document.getElementById('search-client').addEventListener('input', (e) => this.filterClients(e.target.value));
+            document.getElementById('filter-status').addEventListener('change', (e) => this.filterByStatus(e.target.value));
+            document.getElementById('search-supplier').addEventListener('input', (e) => this.filterSuppliers(e.target.value));
+            document.getElementById('search-service').addEventListener('input', (e) => this.filterServices(e.target.value));
+            
+            // Formulários
+            document.getElementById('cliente-form').addEventListener('submit', (e) => this.saveClient(e));
+            document.getElementById('fornecedor-form').addEventListener('submit', (e) => this.saveSupplier(e));
+            document.getElementById('servico-form').addEventListener('submit', (e) => this.saveServico(e));
+            document.getElementById('venda-form').addEventListener('submit', (e) => this.saveVenda(e));
 
-        // Modal de confirmação
-        document.getElementById('confirm-action-btn').addEventListener('click', () => this.confirmAction());
+            // Modal de confirmação
+            document.getElementById('confirm-action-btn').addEventListener('click', () => this.confirmAction());
 
-        // Relatórios
-        document.getElementById('report-period').addEventListener('change', (e) => this.toggleCustomDateRange(e.target.value));
-        document.getElementById('btn-generate-report').addEventListener('click', () => this.generateReports());
+            // Relatórios
+            document.getElementById('report-period').addEventListener('change', (e) => this.toggleCustomDateRange(e.target.value));
+            document.getElementById('btn-generate-report').addEventListener('click', () => this.generateReports());
 
-        // Exportar
-        document.getElementById('btn-export-clients').addEventListener('click', () => this.exportClients());
+            // Exportar
+            document.getElementById('btn-export-clients').addEventListener('click', () => this.exportClients());
 
-        // Filtros de vendas
-        document.getElementById('vendas-period').addEventListener('change', (e) => this.loadVendas());
-        document.getElementById('vendas-status').addEventListener('change', (e) => this.loadVendas());
-        document.getElementById('vendas-fornecedor').addEventListener('change', (e) => this.loadVendas());
+            // Filtros de vendas
+            document.getElementById('vendas-period').addEventListener('change', (e) => this.loadVendas());
+            document.getElementById('vendas-status').addEventListener('change', (e) => this.loadVendas());
+            document.getElementById('vendas-fornecedor').addEventListener('change', (e) => this.loadVendas());
 
-        // Filtros de serviços
-        document.getElementById('filter-category').addEventListener('change', (e) => this.loadServices());
-        document.getElementById('filter-status-service').addEventListener('change', (e) => this.loadServices());
+            // Filtros de serviços
+            document.getElementById('filter-category').addEventListener('change', (e) => this.loadServices());
+            document.getElementById('filter-status-service').addEventListener('change', (e) => this.loadServices());
 
-        // Filtro fornecedores
-        document.getElementById('filter-supplier-status').addEventListener('change', (e) => this.loadSuppliers());
+            // Filtro fornecedores
+            document.getElementById('filter-supplier-status').addEventListener('change', (e) => this.loadSuppliers());
 
-        // Venda Wizard
-        document.getElementById('btn-prev-step')?.addEventListener('click', () => this.prevStep());
-        document.getElementById('btn-next-step')?.addEventListener('click', () => this.nextStep());
-        document.getElementById('btn-finalizar-venda')?.addEventListener('click', () => this.finalizarVenda());
+            // Rating stars
+            const ratingStars = document.getElementById('rating-stars');
+            if (ratingStars) {
+                ratingStars.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'I' && e.target.dataset.rating) {
+                        this.setRating(parseInt(e.target.dataset.rating));
+                    }
+                });
+            }
 
-        // Rating stars
-        const ratingStars = document.getElementById('rating-stars');
-        if (ratingStars) {
-            ratingStars.addEventListener('click', (e) => {
-                if (e.target.tagName === 'I' && e.target.dataset.rating) {
-                    this.setRating(parseInt(e.target.dataset.rating));
-                }
-            });
-        }
+            // Busca serviços na venda
+            const searchServicoVenda = document.getElementById('search-servico-venda');
+            if (searchServicoVenda) {
+                searchServicoVenda.addEventListener('input', (e) => this.filtrarServicosModal(e.target.value));
+            }
 
-        // Busca serviços na venda
-        document.getElementById('search-servico-venda')?.addEventListener('input', (e) => this.filtrarServicosModal(e.target.value));
+            // Botões de ação venda
+            const btnEditarVenda = document.getElementById('btn-editar-venda');
+            const btnExcluirVenda = document.getElementById('btn-excluir-venda');
+            
+            if (btnEditarVenda) {
+                btnEditarVenda.addEventListener('click', () => this.editarVenda());
+            }
+            
+            if (btnExcluirVenda) {
+                btnExcluirVenda.addEventListener('click', () => this.excluirVenda());
+            }
 
-        // Atualizar link do fornecedor
-        document.getElementById('fornecedor')?.addEventListener('change', () => this.atualizarLinkFornecedor());
-        document.getElementById('venda-fornecedor')?.addEventListener('change', () => this.atualizarLinkFornecedorVenda());
-
-        // Botões de ação venda
-        document.getElementById('btn-editar-venda')?.addEventListener('click', () => this.editarVenda());
-        document.getElementById('btn-excluir-venda')?.addEventListener('click', () => this.excluirVenda());
+            // Botões de paginação
+            document.getElementById('btn-prev')?.addEventListener('click', () => this.changePage(-1));
+            document.getElementById('btn-next')?.addEventListener('click', () => this.changePage(1));
+        });
     }
 
     updateCurrentDate() {
         const now = new Date();
         const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-        document.getElementById('current-date').textContent = now.toLocaleDateString('pt-BR', options).replace(',', ' -');
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            dateElement.textContent = now.toLocaleDateString('pt-BR', options).replace(',', ' -');
+        }
     }
 
     // Dashboard
     async loadDashboard() {
         try {
-            const data = await this.fetchData('/relatorios/dashboard');
+            const data = await this.fetchData('/api/relatorios/dashboard');
             
             // Atualizar estatísticas
-            document.getElementById('faturamento-total').textContent = `R$ ${data.faturamento_total?.toFixed(2) || '0,00'}`;
-            document.getElementById('lucro-total').textContent = `R$ ${data.lucro_total?.toFixed(2) || '0,00'}`;
-            document.getElementById('ativos-count').textContent = data.clientes_ativos || 0;
-            document.getElementById('total-clientes').textContent = data.total_clientes || 0;
-            document.getElementById('vencer-count').textContent = data.renovações_proximas || 0;
+            const faturamentoTotal = document.getElementById('faturamento-total');
+            const lucroTotal = document.getElementById('lucro-total');
+            const ativosCount = document.getElementById('ativos-count');
+            const totalClientes = document.getElementById('total-clientes');
+            const vencerCount = document.getElementById('vencer-count');
+            
+            if (faturamentoTotal) {
+                faturamentoTotal.textContent = `R$ ${data.faturamento_total?.toFixed(2) || '0,00'}`;
+            }
+            if (lucroTotal) {
+                lucroTotal.textContent = `R$ ${data.lucro_total?.toFixed(2) || '0,00'}`;
+            }
+            if (ativosCount) {
+                ativosCount.textContent = data.clientes_ativos || 0;
+            }
+            if (totalClientes) {
+                totalClientes.textContent = data.total_clientes || 0;
+            }
+            if (vencerCount) {
+                vencerCount.textContent = data.renovações_proximas || 0;
+            }
 
             // Calcular crescimento
             const crescimentoReceita = data.faturamento_30dias > 0 ? 
@@ -186,12 +246,12 @@ class GGMAXManager {
             const crescimentoLucro = data.lucro_30dias > 0 ? 
                 ((data.lucro_30dias / (data.lucro_total - data.lucro_30dias)) * 100).toFixed(0) : 0;
 
-            document.getElementById('revenue-growth').textContent = `${crescimentoReceita}%`;
-            document.getElementById('profit-growth').textContent = `${crescimentoLucro}%`;
-
-            // Atualizar gráficos
-            this.updateCharts(data);
+            const revenueGrowth = document.getElementById('revenue-growth');
+            const profitGrowth = document.getElementById('profit-growth');
             
+            if (revenueGrowth) revenueGrowth.textContent = `${crescimentoReceita}%`;
+            if (profitGrowth) profitGrowth.textContent = `${crescimentoLucro}%`;
+
             // Carregar últimas vendas
             await this.loadRecentSales();
             
@@ -208,21 +268,23 @@ class GGMAXManager {
 
     async loadRecentSales() {
         try {
-            const vendas = await this.fetchData('/vendas');
+            const vendas = await this.fetchData('/api/vendas');
             const recentVendas = vendas
                 .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                 .slice(0, 5);
 
             const tbody = document.getElementById('recent-sales');
-            tbody.innerHTML = recentVendas.map(venda => `
-                <tr>
-                    <td>${venda.cliente_nome || 'Cliente'}</td>
-                    <td>${venda.itens?.length || 0} serviço(s)</td>
-                    <td class="text-success">R$ ${venda.total_venda?.toFixed(2) || '0,00'}</td>
-                    <td>${venda.fornecedor_nome || 'N/A'}</td>
-                    <td>${new Date(venda.created_at).toLocaleDateString('pt-BR')}</td>
-                </tr>
-            `).join('') || '<tr><td colspan="5">Nenhuma venda recente</td></tr>';
+            if (tbody) {
+                tbody.innerHTML = recentVendas.map(venda => `
+                    <tr>
+                        <td>${venda.cliente_nome || 'Cliente'}</td>
+                        <td>${venda.itens?.length || 0} serviço(s)</td>
+                        <td class="text-success">R$ ${venda.total_venda?.toFixed(2) || '0,00'}</td>
+                        <td>${venda.fornecedor_nome || 'N/A'}</td>
+                        <td>${new Date(venda.created_at).toLocaleDateString('pt-BR')}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5">Nenhuma venda recente</td></tr>';
+            }
         } catch (error) {
             console.error('Erro ao carregar vendas recentes:', error);
         }
@@ -230,8 +292,7 @@ class GGMAXManager {
 
     async loadUpcomingRenewals() {
         try {
-            // Aqui você precisaria de uma rota específica para renovações
-            const clientes = await this.fetchData('/clientes');
+            const clientes = await this.fetchData('/api/clientes');
             
             const hoje = new Date();
             const duasSemanas = new Date(hoje.getTime() + 14 * 24 * 60 * 60 * 1000);
@@ -239,35 +300,41 @@ class GGMAXManager {
 
             // Para cada cliente, buscar assinaturas
             for (const cliente of clientes) {
-                const assinaturas = await this.fetchData(`/clientes/${cliente.id}`);
-                if (assinaturas.assinaturas) {
-                    assinaturas.assinaturas.forEach(assinatura => {
-                        const vencimento = new Date(assinatura.data_vencimento);
-                        if (vencimento >= hoje && vencimento <= duasSemanas) {
-                            const diasRestantes = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
-                            renovacoes.push({
-                                cliente: cliente.nome,
-                                servico: assinatura.servico_nome,
-                                vencimento: vencimento.toLocaleDateString('pt-BR'),
-                                fornecedor: assinatura.fornecedor_nome || 'N/A',
-                                dias: diasRestantes
-                            });
-                        }
-                    });
+                try {
+                    const clienteComAssinaturas = await this.fetchData(`/api/clientes/${cliente.id}`);
+                    if (clienteComAssinaturas.assinaturas) {
+                        clienteComAssinaturas.assinaturas.forEach(assinatura => {
+                            const vencimento = new Date(assinatura.data_vencimento);
+                            if (vencimento >= hoje && vencimento <= duasSemanas) {
+                                const diasRestantes = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
+                                renovacoes.push({
+                                    cliente: cliente.nome,
+                                    servico: assinatura.servico_nome,
+                                    vencimento: vencimento.toLocaleDateString('pt-BR'),
+                                    fornecedor: assinatura.fornecedor_nome || 'N/A',
+                                    dias: diasRestantes
+                                });
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Erro ao buscar assinaturas do cliente ${cliente.id}:`, error);
                 }
             }
 
             renovacoes.sort((a, b) => a.dias - b.dias);
             const tbody = document.getElementById('upcoming-renewals');
-            tbody.innerHTML = renovacoes.slice(0, 5).map(renovacao => `
-                <tr>
-                    <td>${renovacao.cliente}</td>
-                    <td>${renovacao.servico}</td>
-                    <td>${renovacao.vencimento}</td>
-                    <td>${renovacao.fornecedor}</td>
-                    <td><span class="${renovacao.dias <= 3 ? 'text-danger' : 'text-warning'}">${renovacao.dias} dias</span></td>
-                </tr>
-            `).join('') || '<tr><td colspan="5">Nenhuma renovação próxima</td></tr>';
+            if (tbody) {
+                tbody.innerHTML = renovacoes.slice(0, 5).map(renovacao => `
+                    <tr>
+                        <td>${renovacao.cliente}</td>
+                        <td>${renovacao.servico}</td>
+                        <td>${renovacao.vencimento}</td>
+                        <td>${renovacao.fornecedor}</td>
+                        <td><span class="${renovacao.dias <= 3 ? 'text-danger' : 'text-warning'}">${renovacao.dias} dias</span></td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5">Nenhuma renovação próxima</td></tr>';
+            }
 
         } catch (error) {
             console.error('Erro ao carregar renovações:', error);
@@ -276,32 +343,29 @@ class GGMAXManager {
 
     async loadTopServices() {
         try {
-            const topServicos = await this.fetchData('/relatorios/top-servicos/5');
+            const topServicos = await this.fetchData('/api/relatorios/top-servicos/5');
             const tbody = document.getElementById('top-services-dashboard');
             
-            tbody.innerHTML = topServicos.map(servico => `
-                <tr>
-                    <td>${servico.nome}</td>
-                    <td>${servico.categoria}</td>
-                    <td>${servico.total_vendas}</td>
-                    <td class="text-success">R$ ${servico.faturamento?.toFixed(2) || '0,00'}</td>
-                    <td class="text-blue">R$ ${servico.lucro?.toFixed(2) || '0,00'}</td>
-                </tr>
-            `).join('') || '<tr><td colspan="5">Nenhum serviço vendido</td></tr>';
+            if (tbody) {
+                tbody.innerHTML = topServicos.map(servico => `
+                    <tr>
+                        <td>${servico.nome}</td>
+                        <td>${servico.categoria}</td>
+                        <td>${servico.total_vendas}</td>
+                        <td class="text-success">R$ ${servico.faturamento?.toFixed(2) || '0,00'}</td>
+                        <td class="text-blue">R$ ${servico.lucro?.toFixed(2) || '0,00'}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5">Nenhum serviço vendido</td></tr>';
+            }
         } catch (error) {
             console.error('Erro ao carregar top serviços:', error);
         }
     }
 
-    updateCharts(data) {
-        // Implementação dos gráficos aqui
-        console.log('Dados para gráficos:', data);
-    }
-
     // Clientes
     async loadClients() {
         try {
-            let clients = await this.fetchData('/clientes');
+            let clients = await this.fetchData('/api/clientes');
             
             // Aplicar filtros locais
             if (this.currentFilter) {
@@ -324,46 +388,57 @@ class GGMAXManager {
 
             // Renderizar tabela
             const tbody = document.getElementById('client-table-body');
-            tbody.innerHTML = await Promise.all(paginatedClients.map(async cliente => {
-                const assinaturas = await this.fetchData(`/clientes/${cliente.id}`);
-                const totalAssinaturas = assinaturas.assinaturas?.length || 0;
-                const proximoVencimento = this.getProximoVencimento(assinaturas.assinaturas);
-                
-                return `
-                    <tr>
-                        <td>
-                            <strong>${cliente.nome}</strong>
-                            ${cliente.email ? `<br><small>${cliente.email}</small>` : ''}
-                        </td>
-                        <td>
-                            ${cliente.telefone || '-'}
-                        </td>
-                        <td>
-                            ${totalAssinaturas} serviço(s)
-                            ${assinaturas.assinaturas?.[0]?.servico_nome ? `<br><small>${assinaturas.assinaturas[0].servico_nome}</small>` : ''}
-                        </td>
-                        <td class="text-success">R$ ${cliente.total_gasto?.toFixed(2) || '0,00'}</td>
-                        <td>
-                            ${proximoVencimento ? proximoVencimento.data : '-'}
-                            ${proximoVencimento?.dias ? `<br><small class="${proximoVencimento.dias <= 3 ? 'text-danger' : 'text-warning'}">${proximoVencimento.dias} dias</small>` : ''}
-                        </td>
-                        <td><span class="badge ${cliente.status}">${cliente.status}</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn view" onclick="system.viewClient(${cliente.id})" title="Visualizar">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="action-btn edit" onclick="system.editClient(${cliente.id})" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-btn delete" onclick="system.confirmDelete('client', ${cliente.id}, '${cliente.nome}')" title="Excluir">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            })).then(html => html.join('')) || '<tr><td colspan="7" class="text-center">Nenhum cliente encontrado</td></tr>';
+            if (tbody) {
+                tbody.innerHTML = await Promise.all(paginatedClients.map(async cliente => {
+                    try {
+                        const clienteComAssinaturas = await this.fetchData(`/api/clientes/${cliente.id}`);
+                        const totalAssinaturas = clienteComAssinaturas.assinaturas?.length || 0;
+                        const proximoVencimento = this.getProximoVencimento(clienteComAssinaturas.assinaturas);
+                        
+                        return `
+                            <tr>
+                                <td>
+                                    <strong>${cliente.nome}</strong>
+                                    ${cliente.email ? `<br><small>${cliente.email}</small>` : ''}
+                                </td>
+                                <td>
+                                    ${cliente.telefone || '-'}
+                                </td>
+                                <td>
+                                    ${totalAssinaturas} serviço(s)
+                                    ${clienteComAssinaturas.assinaturas?.[0]?.servico_nome ? `<br><small>${clienteComAssinaturas.assinaturas[0].servico_nome}</small>` : ''}
+                                </td>
+                                <td class="text-success">R$ ${cliente.total_gasto?.toFixed(2) || '0,00'}</td>
+                                <td>
+                                    ${proximoVencimento ? proximoVencimento.data : '-'}
+                                    ${proximoVencimento?.dias ? `<br><small class="${proximoVencimento.dias <= 3 ? 'text-danger' : 'text-warning'}">${proximoVencimento.dias} dias</small>` : ''}
+                                </td>
+                                <td><span class="badge ${cliente.status}">${cliente.status}</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn view" onclick="system.viewClient(${cliente.id})" title="Visualizar">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit" onclick="system.editClient(${cliente.id})" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" onclick="system.confirmDelete('client', ${cliente.id}, '${cliente.nome}')" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    } catch (error) {
+                        console.error(`Erro ao carregar cliente ${cliente.id}:`, error);
+                        return `
+                            <tr>
+                                <td colspan="7">Erro ao carregar dados do cliente</td>
+                            </tr>
+                        `;
+                    }
+                })).then(html => html.join('')) || '<tr><td colspan="7" class="text-center">Nenhum cliente encontrado</td></tr>';
+            }
 
             // Atualizar paginação
             this.updatePagination(clients.length);
@@ -410,24 +485,19 @@ class GGMAXManager {
     updatePagination(totalItems) {
         const totalPages = Math.ceil(totalItems / this.itemsPerPage);
         
-        document.getElementById('showing-count').textContent = 
-            Math.min(totalItems, this.currentPage * this.itemsPerPage) - ((this.currentPage - 1) * this.itemsPerPage);
-        document.getElementById('total-count').textContent = totalItems;
-        document.getElementById('current-page').textContent = this.currentPage;
+        const showingCount = document.getElementById('showing-count');
+        const totalCount = document.getElementById('total-count');
+        const currentPage = document.getElementById('current-page');
+        
+        if (showingCount) showingCount.textContent = Math.min(totalItems, this.currentPage * this.itemsPerPage);
+        if (totalCount) totalCount.textContent = totalItems;
+        if (currentPage) currentPage.textContent = this.currentPage;
         
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
         
         if (btnPrev) btnPrev.disabled = this.currentPage === 1;
         if (btnNext) btnNext.disabled = this.currentPage === totalPages || totalPages === 0;
-        
-        // Adicionar event listeners para paginação
-        if (btnPrev && !btnPrev.onclick) {
-            btnPrev.onclick = () => this.changePage(-1);
-        }
-        if (btnNext && !btnNext.onclick) {
-            btnNext.onclick = () => this.changePage(1);
-        }
     }
 
     changePage(direction) {
@@ -443,7 +513,7 @@ class GGMAXManager {
         if (clientId) {
             document.getElementById('modal-cliente-title').innerHTML = '<i class="fas fa-edit"></i> Editar Cliente';
             try {
-                const client = await this.fetchData(`/clientes/${clientId}`);
+                const client = await this.fetchData(`/api/clientes/${clientId}`);
                 this.populateClientForm(client);
             } catch (error) {
                 console.error('Erro ao carregar cliente:', error);
@@ -481,13 +551,13 @@ class GGMAXManager {
         
         try {
             if (clienteId) {
-                await this.fetchData(`/clientes/${clienteId}`, {
+                await this.fetchData(`/api/clientes/${clienteId}`, {
                     method: 'PUT',
                     body: JSON.stringify(cliente)
                 });
                 this.showToast('Cliente atualizado com sucesso!', 'success');
             } else {
-                await this.fetchData('/clientes', {
+                await this.fetchData('/api/clientes', {
                     method: 'POST',
                     body: JSON.stringify(cliente)
                 });
@@ -506,13 +576,15 @@ class GGMAXManager {
     // Fornecedores
     async loadSuppliers() {
         try {
-            const suppliers = await this.fetchData('/fornecedores');
+            const suppliers = await this.fetchData('/api/fornecedores');
             const container = document.getElementById('suppliers-grid');
             
+            if (!container) return;
+            
             // Aplicar filtro de status
-            const statusFilter = document.getElementById('filter-supplier-status').value;
-            const filteredSuppliers = statusFilter ? 
-                suppliers.filter(s => s.status === statusFilter) : suppliers;
+            const statusFilter = document.getElementById('filter-supplier-status');
+            const filteredSuppliers = statusFilter && statusFilter.value ? 
+                suppliers.filter(s => s.status === statusFilter.value) : suppliers;
             
             container.innerHTML = filteredSuppliers.map(supplier => `
                 <div class="supplier-card">
@@ -556,12 +628,6 @@ class GGMAXManager {
         }
     }
 
-    filterSuppliers(filter) {
-        // Implementação de filtro para fornecedores
-        console.log('Filtrar fornecedores:', filter);
-        this.loadSuppliers();
-    }
-
     async openSupplierModal(supplierId = null) {
         this.selectedSupplierId = supplierId;
         const modal = document.getElementById('modal-fornecedor');
@@ -569,7 +635,7 @@ class GGMAXManager {
         if (supplierId) {
             document.getElementById('modal-fornecedor-title').innerHTML = '<i class="fas fa-edit"></i> Editar Fornecedor';
             try {
-                const supplier = await this.fetchData(`/fornecedores/${supplierId}`);
+                const supplier = await this.fetchData(`/api/fornecedores/${supplierId}`);
                 this.populateSupplierForm(supplier);
             } catch (error) {
                 console.error('Erro ao carregar fornecedor:', error);
@@ -634,13 +700,13 @@ class GGMAXManager {
         
         try {
             if (supplierId) {
-                await this.fetchData(`/fornecedores/${supplierId}`, {
+                await this.fetchData(`/api/fornecedores/${supplierId}`, {
                     method: 'PUT',
                     body: JSON.stringify(supplier)
                 });
                 this.showToast('Fornecedor atualizado com sucesso!', 'success');
             } else {
-                await this.fetchData('/fornecedores', {
+                await this.fetchData('/api/fornecedores', {
                     method: 'POST',
                     body: JSON.stringify(supplier)
                 });
@@ -658,13 +724,15 @@ class GGMAXManager {
     // Serviços
     async loadServices() {
         try {
-            const servicos = await this.fetchData('/servicos');
+            const servicos = await this.fetchData('/api/servicos');
             const container = document.getElementById('services-grid');
             
+            if (!container) return;
+            
             // Aplicar filtros
-            const categoriaFilter = document.getElementById('filter-category').value;
-            const statusFilter = document.getElementById('filter-status-service').value;
-            const searchFilter = document.getElementById('search-service').value.toLowerCase();
+            const categoriaFilter = document.getElementById('filter-category')?.value || '';
+            const statusFilter = document.getElementById('filter-status-service')?.value || '';
+            const searchFilter = document.getElementById('search-service')?.value.toLowerCase() || '';
             
             let filteredServicos = servicos.filter(servico => {
                 let pass = true;
@@ -736,7 +804,7 @@ class GGMAXManager {
         if (servicoId) {
             document.getElementById('modal-servico-title').innerHTML = '<i class="fas fa-edit"></i> Editar Serviço';
             try {
-                const servico = await this.fetchData(`/servicos/${servicoId}`);
+                const servico = await this.fetchData(`/api/servicos/${servicoId}`);
                 this.populateServicoForm(servico);
             } catch (error) {
                 console.error('Erro ao carregar serviço:', error);
@@ -768,11 +836,13 @@ class GGMAXManager {
 
     async loadFornecedoresForSelect(selectId) {
         try {
-            const fornecedores = await this.fetchData('/fornecedores');
+            const fornecedores = await this.fetchData('/api/fornecedores');
             const select = document.getElementById(selectId);
             
-            select.innerHTML = '<option value="">Sem fornecedor específico</option>' +
-                fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+            if (select) {
+                select.innerHTML = '<option value="">Sem fornecedor específico</option>' +
+                    fornecedores.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+            }
         } catch (error) {
             console.error('Erro ao carregar fornecedores para select:', error);
         }
@@ -796,13 +866,13 @@ class GGMAXManager {
         
         try {
             if (servicoId) {
-                await this.fetchData(`/servicos/${servicoId}`, {
+                await this.fetchData(`/api/servicos/${servicoId}`, {
                     method: 'PUT',
                     body: JSON.stringify(servico)
                 });
                 this.showToast('Serviço atualizado com sucesso!', 'success');
             } else {
-                await this.fetchData('/servicos', {
+                await this.fetchData('/api/servicos', {
                     method: 'POST',
                     body: JSON.stringify(servico)
                 });
@@ -811,7 +881,7 @@ class GGMAXManager {
             
             this.closeModal('modal-servico');
             this.loadServices();
-            this.loadDashboard(); // Atualizar estatísticas
+            this.loadDashboard();
         } catch (error) {
             console.error('Erro ao salvar serviço:', error);
             this.showToast('Erro ao salvar serviço', 'error');
@@ -821,12 +891,16 @@ class GGMAXManager {
     // Vendas
     async loadVendas() {
         try {
-            const vendas = await this.fetchData('/vendas');
+            const vendas = await this.fetchData('/api/vendas');
             
             // Aplicar filtros
-            const periodo = document.getElementById('vendas-period').value;
-            const statusFilter = document.getElementById('vendas-status').value;
-            const fornecedorFilter = document.getElementById('vendas-fornecedor').value;
+            const periodoElement = document.getElementById('vendas-period');
+            const statusFilterElement = document.getElementById('vendas-status');
+            const fornecedorFilterElement = document.getElementById('vendas-fornecedor');
+            
+            const periodo = periodoElement ? periodoElement.value : 'all';
+            const statusFilter = statusFilterElement ? statusFilterElement.value : '';
+            const fornecedorFilter = fornecedorFilterElement ? fornecedorFilterElement.value : '';
             
             let filteredVendas = vendas.filter(venda => {
                 let pass = true;
@@ -853,38 +927,44 @@ class GGMAXManager {
             
             // Renderizar tabela
             const tbody = document.getElementById('sales-table-body');
-            tbody.innerHTML = filteredVendas.map(venda => {
-                const data = new Date(venda.created_at);
-                const lucro = venda.total_lucro || venda.total_venda - venda.total_custo;
-                const margem = venda.total_venda > 0 ? (lucro / venda.total_venda * 100).toFixed(1) : 0;
-                
-                return `
-                    <tr>
-                        <td>${data.toLocaleDateString('pt-BR')}</td>
-                        <td>${venda.cliente_nome || 'Cliente'}</td>
-                        <td>${venda.itens?.length || 0} serviço(s)</td>
-                        <td>${venda.fornecedor_nome || 'N/A'}</td>
-                        <td class="text-danger">R$ ${venda.total_custo?.toFixed(2) || '0,00'}</td>
-                        <td class="text-success">R$ ${venda.total_venda?.toFixed(2) || '0,00'}</td>
-                        <td class="text-blue">R$ ${lucro.toFixed(2)}</td>
-                        <td><span class="badge ${venda.status}">${venda.status}</span></td>
-                        <td>
-                            <button class="action-btn view" onclick="system.viewVenda(${venda.id})" title="Visualizar">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('') || '<tr><td colspan="9" class="text-center">Nenhuma venda registrada</td></tr>';
+            if (tbody) {
+                tbody.innerHTML = filteredVendas.map(venda => {
+                    const data = new Date(venda.created_at);
+                    const lucro = venda.total_lucro || venda.total_venda - venda.total_custo;
+                    const margem = venda.total_venda > 0 ? (lucro / venda.total_venda * 100).toFixed(1) : 0;
+                    
+                    return `
+                        <tr>
+                            <td>${data.toLocaleDateString('pt-BR')}</td>
+                            <td>${venda.cliente_nome || 'Cliente'}</td>
+                            <td>${venda.itens?.length || 0} serviço(s)</td>
+                            <td>${venda.fornecedor_nome || 'N/A'}</td>
+                            <td class="text-danger">R$ ${venda.total_custo?.toFixed(2) || '0,00'}</td>
+                            <td class="text-success">R$ ${venda.total_venda?.toFixed(2) || '0,00'}</td>
+                            <td class="text-blue">R$ ${lucro.toFixed(2)}</td>
+                            <td><span class="badge ${venda.status}">${venda.status}</span></td>
+                            <td>
+                                <button class="action-btn view" onclick="system.viewVenda(${venda.id})" title="Visualizar">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('') || '<tr><td colspan="9" class="text-center">Nenhuma venda registrada</td></tr>';
+            }
             
             // Calcular totais
             const totalVendas = filteredVendas.reduce((sum, v) => sum + (v.total_venda || 0), 0);
             const totalLucro = filteredVendas.reduce((sum, v) => sum + (v.total_lucro || 0), 0);
             const margemMedia = totalVendas > 0 ? (totalLucro / totalVendas * 100).toFixed(1) : 0;
             
-            document.getElementById('total-vendas').textContent = `R$ ${totalVendas.toFixed(2)}`;
-            document.getElementById('total-lucro-vendas').textContent = `R$ ${totalLucro.toFixed(2)}`;
-            document.getElementById('margem-media-vendas').textContent = `${margemMedia}%`;
+            const totalVendasElement = document.getElementById('total-vendas');
+            const totalLucroVendasElement = document.getElementById('total-lucro-vendas');
+            const margemMediaVendasElement = document.getElementById('margem-media-vendas');
+            
+            if (totalVendasElement) totalVendasElement.textContent = `R$ ${totalVendas.toFixed(2)}`;
+            if (totalLucroVendasElement) totalLucroVendasElement.textContent = `R$ ${totalLucro.toFixed(2)}`;
+            if (margemMediaVendasElement) margemMediaVendasElement.textContent = `${margemMedia}%`;
 
         } catch (error) {
             console.error('Erro ao carregar vendas:', error);
@@ -908,12 +988,11 @@ class GGMAXManager {
         // Carregar dados para os selects
         await this.loadClientesForSelect('venda-cliente');
         await this.loadFornecedoresForSelect('venda-fornecedor');
-        await this.loadServicosForVenda();
         
         // Se for edição, carregar os dados da venda
         if (vendaId) {
             try {
-                const venda = await this.fetchData(`/vendas/${vendaId}`);
+                const venda = await this.fetchData(`/api/vendas/${vendaId}`);
                 this.populateVendaForm(venda);
                 document.getElementById('modal-venda-title').innerHTML = '<i class="fas fa-edit"></i> Editar Venda';
             } catch (error) {
@@ -930,11 +1009,13 @@ class GGMAXManager {
 
     async loadClientesForSelect(selectId) {
         try {
-            const clientes = await this.fetchData('/clientes');
+            const clientes = await this.fetchData('/api/clientes');
             const select = document.getElementById(selectId);
             
-            select.innerHTML = '<option value="">Selecione um cliente</option>' +
-                clientes.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+            if (select) {
+                select.innerHTML = '<option value="">Selecione um cliente</option>' +
+                    clientes.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+            }
         } catch (error) {
             console.error('Erro ao carregar clientes para select:', error);
         }
@@ -942,24 +1023,26 @@ class GGMAXManager {
 
     async loadServicosForVenda() {
         try {
-            const servicos = await this.fetchData('/servicos');
+            const servicos = await this.fetchData('/api/servicos');
             const container = document.getElementById('servicos-list-venda');
             
-            container.innerHTML = servicos.map(servico => {
-                const lucro = servico.preco - servico.custo;
-                const margem = servico.custo > 0 ? (lucro / servico.custo * 100).toFixed(0) : 0;
-                
-                return `
-                    <div class="service-item-modal" onclick="system.selectServiceForVenda(${servico.id})">
-                        <h4>${servico.nome}</h4>
-                        <div class="service-prices">
-                            <span class="price-cost">Custo: R$ ${servico.custo.toFixed(2)}</span>
-                            <span class="price-sale">Venda: R$ ${servico.preco.toFixed(2)}</span>
+            if (container) {
+                container.innerHTML = servicos.map(servico => {
+                    const lucro = servico.preco - servico.custo;
+                    const margem = servico.custo > 0 ? (lucro / servico.custo * 100).toFixed(0) : 0;
+                    
+                    return `
+                        <div class="service-item-modal" onclick="system.selectServiceForVenda(${servico.id})">
+                            <h4>${servico.nome}</h4>
+                            <div class="service-prices">
+                                <span class="price-cost">Custo: R$ ${servico.custo.toFixed(2)}</span>
+                                <span class="price-sale">Venda: R$ ${servico.preco.toFixed(2)}</span>
+                            </div>
+                            <small>${servico.categoria} • ${servico.duracao} mês(es) • Lucro: ${margem}%</small>
                         </div>
-                        <small>${servico.categoria} • ${servico.duracao} mês(es) • Lucro: ${margem}%</small>
-                    </div>
-                `;
-            }).join('') || '<p class="text-center">Nenhum serviço disponível</p>';
+                    `;
+                }).join('') || '<p class="text-center">Nenhum serviço disponível</p>';
+            }
 
         } catch (error) {
             console.error('Erro ao carregar serviços para venda:', error);
@@ -967,7 +1050,6 @@ class GGMAXManager {
     }
 
     selectServiceForVenda(serviceId) {
-        // Implementar seleção de serviço
         console.log('Serviço selecionado:', serviceId);
     }
 
@@ -992,16 +1074,19 @@ class GGMAXManager {
         document.getElementById('venda-status').value = venda.status;
         document.getElementById('venda-metodo-pagamento').value = venda.metodo_pagamento || 'pix';
         document.getElementById('venda-observacoes').value = venda.observacoes || '';
-        
-        // Preencher serviços selecionados
-        // Esta parte precisa ser implementada com mais detalhes
     }
 
     async saveVenda(event) {
         event.preventDefault();
         
+        const clienteId = document.getElementById('venda-cliente').value;
+        if (!clienteId) {
+            this.showToast('Selecione um cliente!', 'error');
+            return;
+        }
+        
         const venda = {
-            cliente_id: document.getElementById('venda-cliente').value,
+            cliente_id: clienteId,
             fornecedor_id: document.getElementById('venda-fornecedor').value || null,
             total_custo: this.vendaData.totalCusto,
             total_venda: this.vendaData.totalVenda,
@@ -1012,27 +1097,20 @@ class GGMAXManager {
         };
         
         const vendaId = document.getElementById('venda-id').value;
-        const itens = this.vendaData.servicos.map(servico => ({
-            servico_id: servico.id,
-            quantidade: 1,
-            custo_unitario: servico.custo,
-            preco_unitario: servico.preco,
-            duracao: servico.duracao
-        }));
         
         try {
             if (vendaId) {
                 // Atualizar venda existente
-                await this.fetchData(`/vendas/${vendaId}`, {
+                await this.fetchData(`/api/vendas/${vendaId}`, {
                     method: 'PUT',
                     body: JSON.stringify(venda)
                 });
                 this.showToast('Venda atualizada com sucesso!', 'success');
             } else {
                 // Criar nova venda
-                await this.fetchData('/vendas', {
+                await this.fetchData('/api/vendas', {
                     method: 'POST',
-                    body: JSON.stringify({ venda, itens })
+                    body: JSON.stringify({ venda, itens: this.vendaData.servicos })
                 });
                 this.showToast('Venda criada com sucesso!', 'success');
             }
@@ -1048,9 +1126,11 @@ class GGMAXManager {
 
     async viewVenda(vendaId) {
         try {
-            const venda = await this.fetchData(`/vendas/${vendaId}`);
+            const venda = await this.fetchData(`/api/vendas/${vendaId}`);
             const modal = document.getElementById('modal-detalhes-venda');
             const container = document.getElementById('detalhes-venda-content');
+            
+            if (!modal || !container) return;
             
             container.innerHTML = `
                 <div class="venda-details">
@@ -1130,15 +1210,22 @@ class GGMAXManager {
             `;
             
             // Configurar botões de ação
-            document.getElementById('btn-editar-venda').onclick = () => {
-                this.closeModal('modal-detalhes-venda');
-                this.openVendaModal(vendaId);
-            };
+            const btnEditarVenda = document.getElementById('btn-editar-venda');
+            const btnExcluirVenda = document.getElementById('btn-excluir-venda');
             
-            document.getElementById('btn-excluir-venda').onclick = () => {
-                this.confirmDelete('venda', vendaId, `Venda #${vendaId}`);
-                this.closeModal('modal-detalhes-venda');
-            };
+            if (btnEditarVenda) {
+                btnEditarVenda.onclick = () => {
+                    this.closeModal('modal-detalhes-venda');
+                    this.openVendaModal(vendaId);
+                };
+            }
+            
+            if (btnExcluirVenda) {
+                btnExcluirVenda.onclick = () => {
+                    this.confirmDelete('venda', vendaId, `Venda #${vendaId}`);
+                    this.closeModal('modal-detalhes-venda');
+                };
+            }
             
             modal.style.display = 'flex';
         } catch (error) {
@@ -1151,12 +1238,20 @@ class GGMAXManager {
     confirmDelete(type, id, name) {
         this.pendingDelete = { type, id, name };
         
-        document.getElementById('confirm-title').textContent = `Confirmar Exclusão`;
-        document.getElementById('confirm-message').textContent = 
-            `Tem certeza que deseja excluir ${type === 'client' ? 'o cliente' : 
-             type === 'supplier' ? 'o fornecedor' : 
-             type === 'servico' ? 'o serviço' : 
-             'a venda'} "${name}"? Esta ação não pode ser desfeita.`;
+        const confirmTitle = document.getElementById('confirm-title');
+        const confirmMessage = document.getElementById('confirm-message');
+        
+        if (confirmTitle) {
+            confirmTitle.textContent = `Confirmar Exclusão`;
+        }
+        
+        if (confirmMessage) {
+            confirmMessage.textContent = 
+                `Tem certeza que deseja excluir ${type === 'client' ? 'o cliente' : 
+                 type === 'supplier' ? 'o fornecedor' : 
+                 type === 'servico' ? 'o serviço' : 
+                 'a venda'} "${name}"? Esta ação não pode ser desfeita.`;
+        }
         
         this.openModal('modal-confirmacao');
     }
@@ -1169,19 +1264,19 @@ class GGMAXManager {
         try {
             switch (type) {
                 case 'client':
-                    await this.fetchData(`/clientes/${id}`, { method: 'DELETE' });
+                    await this.fetchData(`/api/clientes/${id}`, { method: 'DELETE' });
                     this.loadClients();
                     break;
                 case 'supplier':
-                    await this.fetchData(`/fornecedores/${id}`, { method: 'DELETE' });
+                    await this.fetchData(`/api/fornecedores/${id}`, { method: 'DELETE' });
                     this.loadSuppliers();
                     break;
                 case 'servico':
-                    await this.fetchData(`/servicos/${id}`, { method: 'DELETE' });
+                    await this.fetchData(`/api/servicos/${id}`, { method: 'DELETE' });
                     this.loadServices();
                     break;
                 case 'venda':
-                    await this.fetchData(`/vendas/${id}`, { method: 'DELETE' });
+                    await this.fetchData(`/api/vendas/${id}`, { method: 'DELETE' });
                     this.loadVendas();
                     break;
             }
@@ -1200,9 +1295,11 @@ class GGMAXManager {
     // Visualizar cliente
     async viewClient(id) {
         try {
-            const cliente = await this.fetchData(`/clientes/${id}`);
-            const modal = document.getElementById('modal-detalhes-venda'); // Reutilizando modal
+            const cliente = await this.fetchData(`/api/clientes/${id}`);
+            const modal = document.getElementById('modal-detalhes-venda');
             const container = document.getElementById('detalhes-venda-content');
+            
+            if (!modal || !container) return;
             
             let assinaturasHtml = '';
             if (cliente.assinaturas && cliente.assinaturas.length > 0) {
@@ -1277,8 +1374,11 @@ class GGMAXManager {
             `;
             
             // Configurar botões do modal
-            document.getElementById('btn-editar-venda').style.display = 'none';
-            document.getElementById('btn-excluir-venda').style.display = 'none';
+            const btnEditarVenda = document.getElementById('btn-editar-venda');
+            const btnExcluirVenda = document.getElementById('btn-excluir-venda');
+            
+            if (btnEditarVenda) btnEditarVenda.style.display = 'none';
+            if (btnExcluirVenda) btnExcluirVenda.style.display = 'none';
             
             modal.style.display = 'flex';
         } catch (error) {
@@ -1290,12 +1390,13 @@ class GGMAXManager {
     // Funções auxiliares
     toggleCustomDateRange(value) {
         const container = document.getElementById('custom-date-range');
-        container.style.display = value === 'custom' ? 'block' : 'none';
+        if (container) {
+            container.style.display = value === 'custom' ? 'block' : 'none';
+        }
     }
 
     async generateReports() {
         try {
-            // Implementar geração de relatórios
             this.showToast('Relatório gerado com sucesso!', 'info');
         } catch (error) {
             console.error('Erro ao gerar relatório:', error);
@@ -1304,18 +1405,7 @@ class GGMAXManager {
     }
 
     exportClients() {
-        // Implementar exportação de clientes
         this.showToast('Exportação em desenvolvimento', 'info');
-    }
-
-    atualizarLinkFornecedor() {
-        // Implementar atualização de link do fornecedor
-        console.log('Atualizar link do fornecedor');
-    }
-
-    atualizarLinkFornecedorVenda() {
-        // Implementar atualização de link do fornecedor na venda
-        console.log('Atualizar link do fornecedor na venda');
     }
 
     showToast(message, type = 'info') {
@@ -1332,11 +1422,17 @@ class GGMAXManager {
     }
 
     openModal(modalId) {
-        document.getElementById(modalId).style.display = 'flex';
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'flex';
+        }
     }
 
     closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
 
     updateUI() {
@@ -1349,6 +1445,8 @@ class GGMAXManager {
 
     // Navegação entre abas
     showTab(tab) {
+        console.log('Mostrando aba:', tab);
+        
         // Esconder todas as abas
         document.querySelectorAll('.tab-content').forEach(t => {
             t.classList.remove('active');
@@ -1360,8 +1458,11 @@ class GGMAXManager {
         });
         
         // Mostrar aba selecionada
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        document.getElementById(`btn-tab-${tab}`).classList.add('active');
+        const tabContent = document.getElementById(`tab-${tab}`);
+        const tabButton = document.getElementById(`btn-tab-${tab}`);
+        
+        if (tabContent) tabContent.classList.add('active');
+        if (tabButton) tabButton.classList.add('active');
         
         // Atualizar conteúdo específico da aba
         switch(tab) {
@@ -1410,7 +1511,7 @@ class GGMAXManager {
                 status: 'ativo'
             };
             
-            this.fetchData('/clientes', {
+            this.fetchData('/api/clientes', {
                 method: 'POST',
                 body: JSON.stringify(cliente)
             }).then(() => {
@@ -1423,39 +1524,46 @@ class GGMAXManager {
             });
         }
     }
-
-    gerarTabelaPrecos() {
-        window.print();
-    }
 }
 
-// Inicializar sistema
-const system = new GGMAXManager();
-
-// Funções globais para uso no HTML
-function showTab(tab) {
-    system.showTab(tab);
-}
-
-function closeModal(modalId) {
-    system.closeModal(modalId);
-}
-
-function filtrarServicosModal(filtro) {
-    system.filtrarServicosModal(filtro);
-}
-
-function gerarTabelaPrecos() {
-    system.gerarTabelaPrecos();
-}
-
-function cadastrarClienteRapido() {
-    system.cadastrarClienteRapido();
-}
-
-function atualizarLinkFornecedor() {
-    system.atualizarLinkFornecedor();
-}
-
-// Expor sistema globalmente para acesso via HTML
-window.system = system;
+// Inicializar sistema quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+    window.system = new GGMAXManager();
+    
+    // Funções globais para uso no HTML
+    window.showTab = (tab) => {
+        if (window.system) {
+            window.system.showTab(tab);
+        }
+    };
+    
+    window.closeModal = (modalId) => {
+        if (window.system) {
+            window.system.closeModal(modalId);
+        }
+    };
+    
+    window.filtrarServicosModal = (filtro) => {
+        if (window.system) {
+            window.system.filtrarServicosModal(filtro);
+        }
+    };
+    
+    window.gerarTabelaPrecos = () => {
+        if (window.system) {
+            window.system.gerarTabelaPrecos();
+        }
+    };
+    
+    window.cadastrarClienteRapido = () => {
+        if (window.system) {
+            window.system.cadastrarClienteRapido();
+        }
+    };
+    
+    window.atualizarLinkFornecedor = () => {
+        if (window.system) {
+            window.system.atualizarLinkFornecedor();
+        }
+    };
+});

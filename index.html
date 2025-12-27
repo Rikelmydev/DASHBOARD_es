@@ -20,22 +20,22 @@
             </div>
             
             <nav class="nav-menu">
-                <button onclick="showTab('dashboard')" class="nav-btn active" id="btn-tab-dashboard">
+                <button class="nav-btn active" id="btn-tab-dashboard">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </button>
-                <button onclick="showTab('clientes')" class="nav-btn" id="btn-tab-clientes">
+                <button class="nav-btn" id="btn-tab-clientes">
                     <i class="fas fa-users"></i> Clientes
                 </button>
-                <button onclick="showTab('servicos')" class="nav-btn" id="btn-tab-servicos">
+                <button class="nav-btn" id="btn-tab-servicos">
                     <i class="fas fa-list-alt"></i> Serviços
                 </button>
-                <button onclick="showTab('fornecedores')" class="nav-btn" id="btn-tab-fornecedores">
+                <button class="nav-btn" id="btn-tab-fornecedores">
                     <i class="fas fa-store"></i> Fornecedores
                 </button>
-                <button onclick="showTab('vendas')" class="nav-btn" id="btn-tab-vendas">
+                <button class="nav-btn" id="btn-tab-vendas">
                     <i class="fas fa-shopping-cart"></i> Vendas
                 </button>
-                <button onclick="showTab('relatorios')" class="nav-btn" id="btn-tab-relatorios">
+                <button class="nav-btn" id="btn-tab-relatorios">
                     <i class="fas fa-chart-line"></i> Relatórios
                 </button>
             </nav>
@@ -110,7 +110,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h3><i class="fas fa-history"></i> Últimas Vendas</h3>
-                            <button onclick="showTab('vendas')" class="btn-secondary small">
+                            <button class="btn-secondary small" id="btn-ver-todas-vendas">
                                 Ver Todas <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
@@ -126,7 +126,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="recent-sales">
-                                    <!-- Preenchido via JS -->
+                                    <tr><td colspan="5">Carregando vendas recentes...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -148,7 +148,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="upcoming-renewals">
-                                    <!-- Preenchido via JS -->
+                                    <tr><td colspan="5">Carregando renovações...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -171,7 +171,7 @@
                                 </tr>
                             </thead>
                             <tbody id="top-services-dashboard">
-                                <!-- Preenchido via JS -->
+                                <tr><td colspan="5">Carregando serviços...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -226,7 +226,7 @@
                                 </tr>
                             </thead>
                             <tbody id="client-table-body">
-                                <!-- Preenchido via JS -->
+                                <tr><td colspan="7">Carregando clientes...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -286,7 +286,27 @@
                 </div>
 
                 <div class="services-grid" id="services-grid">
-                    <!-- Serviços serão carregados aqui -->
+                    <div class="service-card placeholder">
+                        <div class="service-header">
+                            <h4>Carregando serviços...</h4>
+                            <span class="badge ativo">Ativo</span>
+                        </div>
+                        <p class="service-category">📺 Streaming Vídeo</p>
+                        <div class="service-prices">
+                            <div class="price-item">
+                                <span>Custo:</span>
+                                <strong class="text-danger">R$ 0,00</strong>
+                            </div>
+                            <div class="price-item">
+                                <span>Venda:</span>
+                                <strong class="text-success">R$ 0,00</strong>
+                            </div>
+                            <div class="price-item">
+                                <span>Lucro:</span>
+                                <strong class="text-blue">R$ 0,00 (0%)</strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -320,7 +340,32 @@
                 </div>
 
                 <div class="suppliers-grid" id="suppliers-grid">
-                    <!-- Fornecedores serão carregados aqui -->
+                    <div class="supplier-card placeholder">
+                        <div class="supplier-header">
+                            <div class="supplier-avatar">S</div>
+                            <div class="supplier-info">
+                                <h4>Carregando fornecedores...</h4>
+                                <p class="supplier-contato">
+                                    <i class="fas fa-telegram"></i> @username
+                                </p>
+                            </div>
+                            <span class="badge ativo">Ativo</span>
+                        </div>
+                        <div class="supplier-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">3.0</span>
+                                <span class="stat-label">Avaliação</span>
+                            </div>
+                        </div>
+                        <div class="supplier-actions">
+                            <button class="btn-primary small" disabled>
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-danger small" disabled>
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="card mt-20">
@@ -341,7 +386,7 @@
                                 </tr>
                             </thead>
                             <tbody id="supplier-performance">
-                                <!-- Preenchido via JS -->
+                                <tr><td colspan="7">Carregando desempenho...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -409,7 +454,7 @@
                                 </tr>
                             </thead>
                             <tbody id="sales-table-body">
-                                <!-- Preenchido via JS -->
+                                <tr><td colspan="9">Carregando vendas...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -476,6 +521,7 @@
                         </div>
                         <div class="chart-container">
                             <canvas id="revenue-chart"></canvas>
+                            <p class="chart-placeholder">Gráfico de faturamento será exibido aqui</p>
                         </div>
                     </div>
 
@@ -485,6 +531,7 @@
                         </div>
                         <div class="chart-container">
                             <canvas id="category-chart"></canvas>
+                            <p class="chart-placeholder">Gráfico de categorias será exibido aqui</p>
                         </div>
                     </div>
 
@@ -494,6 +541,7 @@
                         </div>
                         <div class="chart-container">
                             <canvas id="profit-chart"></canvas>
+                            <p class="chart-placeholder">Gráfico de lucro será exibido aqui</p>
                         </div>
                     </div>
 
@@ -502,7 +550,11 @@
                             <h3><i class="fas fa-crown"></i> Top Fornecedores</h3>
                         </div>
                         <div id="top-fornecedores-list" class="top-list">
-                            <!-- Lista de top fornecedores -->
+                            <div class="top-item">
+                                <span>1.</span>
+                                <span>Carregando...</span>
+                                <span>R$ 0,00</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -525,7 +577,7 @@
                                 </tr>
                             </thead>
                             <tbody id="financial-details">
-                                <!-- Preenchido via JS -->
+                                <tr><td colspan="7">Carregando detalhes financeiros...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -553,7 +605,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2 id="modal-cliente-title"><i class="fas fa-user-plus"></i> Novo Cliente</h2>
-                <button class="close-icon" onclick="closeModal('modal-cliente')">&times;</button>
+                <button class="close-icon" id="close-modal-cliente">&times;</button>
             </div>
             
             <div class="modal-body">
@@ -595,7 +647,7 @@
 
                     <div class="modal-footer">
                         <input type="hidden" id="cliente-id">
-                        <button type="button" class="btn-secondary" onclick="closeModal('modal-cliente')">
+                        <button type="button" class="btn-secondary" id="cancel-modal-cliente">
                             <i class="fas fa-times"></i> Cancelar
                         </button>
                         <button type="submit" class="btn-primary">
@@ -612,7 +664,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2 id="modal-servico-title"><i class="fas fa-plus-circle"></i> Novo Serviço</h2>
-                <button class="close-icon" onclick="closeModal('modal-servico')">&times;</button>
+                <button class="close-icon" id="close-modal-servico">&times;</button>
             </div>
             
             <div class="modal-body">
@@ -684,7 +736,7 @@
 
                     <div class="modal-footer">
                         <input type="hidden" id="servico-id">
-                        <button type="button" class="btn-secondary" onclick="closeModal('modal-servico')">
+                        <button type="button" class="btn-secondary" id="cancel-modal-servico">
                             <i class="fas fa-times"></i> Cancelar
                         </button>
                         <button type="submit" class="btn-primary">
@@ -701,7 +753,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2 id="modal-fornecedor-title"><i class="fas fa-store"></i> Novo Fornecedor</h2>
-                <button class="close-icon" onclick="closeModal('modal-fornecedor')">&times;</button>
+                <button class="close-icon" id="close-modal-fornecedor">&times;</button>
             </div>
             
             <div class="modal-body">
@@ -763,7 +815,7 @@
 
                     <div class="modal-footer">
                         <input type="hidden" id="fornecedor-id">
-                        <button type="button" class="btn-secondary" onclick="closeModal('modal-fornecedor')">
+                        <button type="button" class="btn-secondary" id="cancel-modal-fornecedor">
                             <i class="fas fa-times"></i> Cancelar
                         </button>
                         <button type="submit" class="btn-primary">
@@ -779,8 +831,8 @@
     <div id="modal-venda" class="modal-overlay">
         <div class="modal wide-modal">
             <div class="modal-header">
-                <h2><i class="fas fa-cart-plus"></i> Nova Venda</h2>
-                <button class="close-icon" onclick="closeModal('modal-venda')">&times;</button>
+                <h2 id="modal-venda-title"><i class="fas fa-cart-plus"></i> Nova Venda</h2>
+                <button class="close-icon" id="close-modal-venda">&times;</button>
             </div>
             
             <div class="modal-body">
@@ -812,12 +864,21 @@
                                     <input type="text" id="search-servico-venda" placeholder="Buscar serviço...">
                                 </div>
                                 <div class="servicos-list" id="servicos-list-venda">
-                                    <!-- Serviços serão carregados aqui -->
+                                    <div class="service-item-modal placeholder">
+                                        <h4>Carregando serviços...</h4>
+                                        <div class="service-prices">
+                                            <span class="price-cost">Custo: R$ 0,00</span>
+                                            <span class="price-sale">Venda: R$ 0,00</span>
+                                        </div>
+                                        <small>Categoria • Duração • Lucro</small>
+                                    </div>
                                 </div>
                             </div>
                             <div class="selected-servicos">
                                 <h4>Serviços Selecionados</h4>
-                                <div id="selected-servicos-list"></div>
+                                <div id="selected-servicos-list">
+                                    <p class="empty-message">Nenhum serviço selecionado</p>
+                                </div>
                                 <div class="venda-totals">
                                     <div class="total-item">
                                         <span>Custo Total:</span>
@@ -871,7 +932,7 @@
 
                     <div class="modal-footer">
                         <input type="hidden" id="venda-id">
-                        <button type="button" class="btn-secondary" onclick="closeModal('modal-venda')">
+                        <button type="button" class="btn-secondary" id="cancel-modal-venda">
                             <i class="fas fa-times"></i> Cancelar
                         </button>
                         <button type="submit" class="btn-primary">
@@ -888,13 +949,15 @@
         <div class="modal">
             <div class="modal-header">
                 <h2><i class="fas fa-eye"></i> Detalhes da Venda</h2>
-                <button class="close-icon" onclick="closeModal('modal-detalhes-venda')">&times;</button>
+                <button class="close-icon" id="close-modal-detalhes-venda">&times;</button>
             </div>
             <div class="modal-body" id="detalhes-venda-content">
-                <!-- Conteúdo será preenchido via JS -->
+                <div class="loading-message">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando detalhes...
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeModal('modal-detalhes-venda')">
+                <button type="button" class="btn-secondary" id="close-btn-modal-detalhes-venda">
                     <i class="fas fa-times"></i> Fechar
                 </button>
                 <button type="button" class="btn-primary" id="btn-editar-venda">
@@ -912,13 +975,13 @@
         <div class="modal small-modal">
             <div class="modal-header">
                 <h3><i class="fas fa-exclamation-triangle"></i> <span id="confirm-title">Confirmar Ação</span></h3>
-                <button class="close-icon" onclick="closeModal('modal-confirmacao')">&times;</button>
+                <button class="close-icon" id="close-modal-confirmacao">&times;</button>
             </div>
             <div class="modal-body">
                 <p id="confirm-message">Tem certeza que deseja realizar esta ação?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeModal('modal-confirmacao')">
+                <button type="button" class="btn-secondary" id="cancel-modal-confirmacao">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
                 <button type="button" id="confirm-action-btn" class="btn-danger">

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Database = require('./database');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,15 +10,22 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Inicializar banco de dados
 const db = new Database();
 
+// Test route
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'API está funcionando!' });
+});
+
 // Rotas para serviços
 app.get('/api/servicos', (req, res) => {
+    console.log('GET /api/servicos');
     db.getAllServicos((err, servicos) => {
         if (err) {
+            console.error('Erro ao buscar serviços:', err);
             res.status(500).json({ error: err.message });
             return;
         }
@@ -29,6 +37,10 @@ app.get('/api/servicos/:id', (req, res) => {
     db.getServicoById(req.params.id, (err, servico) => {
         if (err) {
             res.status(500).json({ error: err.message });
+            return;
+        }
+        if (!servico) {
+            res.status(404).json({ error: 'Serviço não encontrado' });
             return;
         }
         res.json(servico);
@@ -69,12 +81,27 @@ app.delete('/api/servicos/:id', (req, res) => {
 
 // Rotas para fornecedores
 app.get('/api/fornecedores', (req, res) => {
+    console.log('GET /api/fornecedores');
     db.getAllFornecedores((err, fornecedores) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         }
         res.json(fornecedores);
+    });
+});
+
+app.get('/api/fornecedores/:id', (req, res) => {
+    db.getFornecedorById(req.params.id, (err, fornecedor) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        if (!fornecedor) {
+            res.status(404).json({ error: 'Fornecedor não encontrado' });
+            return;
+        }
+        res.json(fornecedor);
     });
 });
 
@@ -112,6 +139,7 @@ app.delete('/api/fornecedores/:id', (req, res) => {
 
 // Rotas para clientes
 app.get('/api/clientes', (req, res) => {
+    console.log('GET /api/clientes');
     db.getAllClientes((err, clientes) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -177,6 +205,7 @@ app.delete('/api/clientes/:id', (req, res) => {
 
 // Rotas para vendas
 app.get('/api/vendas', (req, res) => {
+    console.log('GET /api/vendas');
     db.getAllVendas((err, vendas) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -264,6 +293,7 @@ app.delete('/api/vendas/:id', (req, res) => {
 
 // Rotas para relatórios
 app.get('/api/relatorios/dashboard', (req, res) => {
+    console.log('GET /api/relatorios/dashboard');
     db.getDashboardData((err, dados) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -316,8 +346,23 @@ app.get('/api/relatorios/top-servicos/:limit?', (req, res) => {
     });
 });
 
+// Rota para servir o frontend
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Iniciar servidor
 app.listen(port, () => {
+    console.log(`\n===========================================`);
     console.log(`Servidor EasyStream rodando na porta ${port}`);
     console.log(`Acesse: http://localhost:${port}`);
+    console.log(`===========================================\n`);
+    
+    console.log('Endpoints disponíveis:');
+    console.log(`  http://localhost:${port}/api/test`);
+    console.log(`  http://localhost:${port}/api/servicos`);
+    console.log(`  http://localhost:${port}/api/clientes`);
+    console.log(`  http://localhost:${port}/api/fornecedores`);
+    console.log(`  http://localhost:${port}/api/vendas`);
+    console.log(`  http://localhost:${port}/api/relatorios/dashboard`);
 });
