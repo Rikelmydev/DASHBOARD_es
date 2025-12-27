@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyStream | Sistema de Gestão de Streaming</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <h1><i class="fas fa-play-circle"></i> Easy<span>Stream</span></h1>
+                <p>Sistema de Gestão de Assinaturas de Streaming</p>
+            </div>
+            
+            <nav class="nav-menu">
+                <button onclick="showTab('dashboard')" class="nav-btn active" id="btn-tab-dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button onclick="showTab('clientes')" class="nav-btn" id="btn-tab-clientes">
+                    <i class="fas fa-users"></i> Clientes
+                </button>
+                <button onclick="showTab('servicos')" class="nav-btn" id="btn-tab-servicos">
+                    <i class="fas fa-list-alt"></i> Serviços
+                </button>
+                <button onclick="showTab('fornecedores')" class="nav-btn" id="btn-tab-fornecedores">
+                    <i class="fas fa-store"></i> Fornecedores
+                </button>
+                <button onclick="showTab('vendas')" class="nav-btn" id="btn-tab-vendas">
+                    <i class="fas fa-shopping-cart"></i> Vendas
+                </button>
+                <button onclick="showTab('relatorios')" class="nav-btn" id="btn-tab-relatorios">
+                    <i class="fas fa-chart-line"></i> Relatórios
+                </button>
+            </nav>
+            
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="user-details">
+                    <span>Administrador</span>
+                    <small><i class="fas fa-wallet"></i> Lucro: <span id="saldo-total">R$ 0,00</span></small>
+                </div>
+            </div>
+        </header>
+
+        <!-- Conteúdo Principal -->
+        <main>
+            <!-- Dashboard -->
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="section-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard EasyStream</h2>
+                    <p>Visão geral do seu negócio de streaming</p>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Faturamento Total</h3>
+                            <span id="faturamento-total" class="stat-value">R$ 0,00</span>
+                            <p class="stat-trend"><i class="fas fa-arrow-up"></i> <span id="revenue-growth">0%</span> últimos 30 dias</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon profit">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Lucro Líquido</h3>
+                            <span id="lucro-total" class="stat-value">R$ 0,00</span>
+                            <p class="stat-trend"><i class="fas fa-arrow-up"></i> <span id="profit-growth">0%</span> últimos 30 dias</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon clients">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Clientes Ativos</h3>
+                            <span id="ativos-count" class="stat-value">0</span>
+                            <p class="stat-subtitle">Total: <span id="total-clientes">0</span> clientes</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>A Vencer (7 dias)</h3>
+                            <span id="vencer-count" class="stat-value">0</span>
+                            <p class="stat-subtitle">Renovações próximas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history"></i> Últimas Vendas</h3>
+                            <button onclick="showTab('vendas')" class="btn-secondary small">
+                                Ver Todas <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Serviços</th>
+                                        <th>Valor</th>
+                                        <th>Fornecedor</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-sales">
+                                    <!-- Preenchido via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar-alt"></i> Renovações Próximas</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Serviço</th>
+                                        <th>Vencimento</th>
+                                        <th>Fornecedor</th>
+                                        <th>Dias</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="upcoming-renewals">
+                                    <!-- Preenchido via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-20">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie"></i> Top 5 Serviços</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Serviço</th>
+                                    <th>Categoria</th>
+                                    <th>Vendas</th>
+                                    <th>Faturamento</th>
+                                    <th>Lucro</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-services-dashboard">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clientes -->
+            <section id="tab-clientes" class="tab-content">
+                <div class="section-header">
+                    <div class="header-content">
+                        <div>
+                            <h2><i class="fas fa-users"></i> Gestão de Clientes</h2>
+                            <p>Gerencie todos os clientes e suas assinaturas</p>
+                        </div>
+                        <button id="btn-novo-cliente" class="btn-primary">
+                            <i class="fas fa-plus"></i> Novo Cliente
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-client" placeholder="Buscar cliente, serviço, email...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-status">
+                            <option value="">Todos Status</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="inativo">Inativo</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                        <button id="btn-export-clients" class="btn-secondary">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Contato</th>
+                                    <th>Assinaturas Ativas</th>
+                                    <th>Total Gasto</th>
+                                    <th>Próximo Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="client-table-body">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-footer">
+                        <div class="pagination-info">
+                            Mostrando <span id="showing-count">0</span> de <span id="total-count">0</span> clientes
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="btn-prev" class="pagination-btn" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span class="pagination-page">Página <span id="current-page">1</span></span>
+                            <button id="btn-next" class="pagination-btn" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Serviços -->
+            <section id="tab-servicos" class="tab-content">
+                <div class="section-header">
+                    <div class="header-content">
+                        <div>
+                            <h2><i class="fas fa-list-alt"></i> Catálogo de Serviços</h2>
+                            <p>Gerencie todos os serviços de streaming disponíveis</p>
+                        </div>
+                        <button id="btn-novo-servico" class="btn-primary">
+                            <i class="fas fa-plus"></i> Novo Serviço
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-service" placeholder="Buscar serviço...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-category">
+                            <option value="">Todas Categorias</option>
+                            <option value="📺 Streaming Vídeo">📺 Streaming Vídeo</option>
+                            <option value="🎵 Streaming Música">🎵 Streaming Música</option>
+                            <option value="⚽ Esportes">⚽ Esportes</option>
+                            <option value="🎮 Games">🎮 Games</option>
+                            <option value="🛠️ Ferramentas">🛠️ Ferramentas</option>
+                            <option value="🤖 IA">🤖 IA</option>
+                        </select>
+                        <select id="filter-status-service">
+                            <option value="">Todos Status</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="services-grid" id="services-grid">
+                    <!-- Serviços serão carregados aqui -->
+                </div>
+            </section>
+
+            <!-- Fornecedores -->
+            <section id="tab-fornecedores" class="tab-content">
+                <div class="section-header">
+                    <div class="header-content">
+                        <div>
+                            <h2><i class="fas fa-store"></i> Gestão de Fornecedores</h2>
+                            <p>Gerencie seus fornecedores de contas</p>
+                        </div>
+                        <button id="btn-novo-fornecedor" class="btn-primary">
+                            <i class="fas fa-plus"></i> Novo Fornecedor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-supplier" placeholder="Buscar fornecedor...">
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-supplier-status">
+                            <option value="">Todos Status</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                            <option value="suspenso">Suspenso</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="suppliers-grid" id="suppliers-grid">
+                    <!-- Fornecedores serão carregados aqui -->
+                </div>
+
+                <div class="card mt-20">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-bar"></i> Desempenho dos Fornecedores</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fornecedor</th>
+                                    <th>Tipo Contato</th>
+                                    <th>Vendas</th>
+                                    <th>Taxa de Sucesso</th>
+                                    <th>Lucro Gerado</th>
+                                    <th>Avaliação</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supplier-performance">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vendas -->
+            <section id="tab-vendas" class="tab-content">
+                <div class="section-header">
+                    <div class="header-content">
+                        <div>
+                            <h2><i class="fas fa-shopping-cart"></i> Histórico de Vendas</h2>
+                            <p>Registro completo de todas as vendas realizadas</p>
+                        </div>
+                        <button id="btn-nova-venda" class="btn-primary">
+                            <i class="fas fa-plus"></i> Nova Venda
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="filter-row">
+                        <div class="filter-item">
+                            <label>Período</label>
+                            <select id="vendas-period">
+                                <option value="30">Últimos 30 dias</option>
+                                <option value="90">Últimos 90 dias</option>
+                                <option value="180">Últimos 6 meses</option>
+                                <option value="365">Último ano</option>
+                                <option value="all">Todo período</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label>Status</label>
+                            <select id="vendas-status">
+                                <option value="">Todos Status</option>
+                                <option value="concluida">Concluída</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label>Fornecedor</label>
+                            <select id="vendas-fornecedor">
+                                <option value="">Todos Fornecedores</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Serviços</th>
+                                    <th>Fornecedor</th>
+                                    <th>Custo</th>
+                                    <th>Venda</th>
+                                    <th>Lucro</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-footer">
+                        <div class="sales-summary">
+                            <div class="summary-item">
+                                <span>Total Vendas:</span>
+                                <strong id="total-vendas">R$ 0,00</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Total Lucro:</span>
+                                <strong id="total-lucro-vendas" class="text-success">R$ 0,00</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span>Margem Média:</span>
+                                <strong id="margem-media-vendas" class="text-info">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Relatórios -->
+            <section id="tab-relatorios" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Relatórios Analíticos</h2>
+                    <p>Análises detalhadas do seu negócio</p>
+                </div>
+
+                <div class="reports-filters">
+                    <div class="filter-row">
+                        <div class="filter-item">
+                            <label>Período</label>
+                            <select id="report-period">
+                                <option value="30">Últimos 30 dias</option>
+                                <option value="90">Últimos 90 dias</option>
+                                <option value="180">Últimos 6 meses</option>
+                                <option value="365">Último ano</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="filter-item" id="custom-date-range" style="display: none;">
+                            <div class="date-inputs">
+                                <input type="date" id="start-date" class="date-input">
+                                <span>até</span>
+                                <input type="date" id="end-date" class="date-input">
+                            </div>
+                        </div>
+                        <button id="btn-generate-report" class="btn-primary">
+                            <i class="fas fa-sync"></i> Gerar Relatório
+                        </button>
+                    </div>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="report-card large">
+                        <div class="report-header">
+                            <h3><i class="fas fa-chart-bar"></i> Faturamento Mensal</h3>
+                            <select id="chart-year" class="chart-select">
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="revenue-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3><i class="fas fa-chart-pie"></i> Distribuição por Categoria</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="category-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3><i class="fas fa-chart-line"></i> Evolução do Lucro</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="profit-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3><i class="fas fa-crown"></i> Top Fornecedores</h3>
+                        </div>
+                        <div id="top-fornecedores-list" class="top-list">
+                            <!-- Lista de top fornecedores -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-20">
+                    <div class="card-header">
+                        <h3><i class="fas fa-table"></i> Detalhamento Financeiro</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mês</th>
+                                    <th>Vendas</th>
+                                    <th>Faturamento</th>
+                                    <th>Custo</th>
+                                    <th>Lucro</th>
+                                    <th>Margem</th>
+                                    <th>Novos Clientes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financial-details">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div>
+                    <p><i class="fas fa-copyright"></i> 2024 EasyStream - Sistema de Gestão</p>
+                    <p class="footer-info">Versão 5.0 | <span id="current-date"></span> | <i class="fas fa-server"></i> API Node.js</p>
+                </div>
+                <div class="footer-stats">
+                    <span><i class="fas fa-database"></i> <span id="db-size">0</span> registros</span>
+                    <span><i class="fas fa-sync"></i> <span id="last-update">Conectado</span></span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal Cliente -->
+    <div id="modal-cliente" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-cliente-title"><i class="fas fa-user-plus"></i> Novo Cliente</h2>
+                <button class="close-icon" onclick="closeModal('modal-cliente')">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="cliente-form">
+                    <div class="form-section">
+                        <h3><i class="fas fa-user"></i> Informações do Cliente</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cliente-nome">Nome Completo *</label>
+                                <input type="text" id="cliente-nome" required placeholder="Nome do cliente">
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente-telefone">Telefone/WhatsApp *</label>
+                                <input type="tel" id="cliente-telefone" required placeholder="(11) 99999-9999">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cliente-email">E-mail</label>
+                                <input type="email" id="cliente-email" placeholder="cliente@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente-status">Status *</label>
+                                <select id="cliente-status" required>
+                                    <option value="ativo">Ativo</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="inativo">Inativo</option>
+                                    <option value="vencido">Vencido</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cliente-observacoes">Observações</label>
+                            <textarea id="cliente-observacoes" rows="3" placeholder="Informações adicionais sobre o cliente..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="hidden" id="cliente-id">
+                        <button type="button" class="btn-secondary" onclick="closeModal('modal-cliente')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Serviço -->
+    <div id="modal-servico" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-servico-title"><i class="fas fa-plus-circle"></i> Novo Serviço</h2>
+                <button class="close-icon" onclick="closeModal('modal-servico')">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="servico-form">
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Informações do Serviço</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="servico-nome">Nome do Serviço *</label>
+                                <input type="text" id="servico-nome" required placeholder="Ex: Netflix Premium">
+                            </div>
+                            <div class="form-group">
+                                <label for="servico-categoria">Categoria *</label>
+                                <select id="servico-categoria" required>
+                                    <option value="">Selecione</option>
+                                    <option value="📺 Streaming Vídeo">📺 Streaming Vídeo</option>
+                                    <option value="🎵 Streaming Música">🎵 Streaming Música</option>
+                                    <option value="⚽ Esportes">⚽ Esportes</option>
+                                    <option value="🎮 Games">🎮 Games</option>
+                                    <option value="🛠️ Ferramentas">🛠️ Ferramentas</option>
+                                    <option value="🤖 IA">🤖 IA</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="servico-descricao">Descrição</label>
+                            <textarea id="servico-descricao" rows="3" placeholder="Descreva o serviço, benefícios, etc..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="servico-custo">Custo (R$) *</label>
+                                <input type="number" id="servico-custo" step="0.01" min="0" required placeholder="0,00">
+                            </div>
+                            <div class="form-group">
+                                <label for="servico-preco">Preço de Venda (R$) *</label>
+                                <input type="number" id="servico-preco" step="0.01" min="0" required placeholder="0,00">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="servico-duracao">Duração (meses) *</label>
+                                <select id="servico-duracao" required>
+                                    <option value="1">1 mês</option>
+                                    <option value="2">2 meses</option>
+                                    <option value="3">3 meses</option>
+                                    <option value="6">6 meses</option>
+                                    <option value="12">12 meses (anual)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="servico-fornecedor">Fornecedor</label>
+                                <select id="servico-fornecedor">
+                                    <option value="">Sem fornecedor específico</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="servico-status">Status</label>
+                            <select id="servico-status">
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="hidden" id="servico-id">
+                        <button type="button" class="btn-secondary" onclick="closeModal('modal-servico')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Serviço
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Fornecedor -->
+    <div id="modal-fornecedor" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-fornecedor-title"><i class="fas fa-store"></i> Novo Fornecedor</h2>
+                <button class="close-icon" onclick="closeModal('modal-fornecedor')">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="fornecedor-form">
+                    <div class="form-section">
+                        <h3><i class="fas fa-user-tie"></i> Informações do Fornecedor</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fornecedor-nome">Nome/Apelido *</label>
+                                <input type="text" id="fornecedor-nome" required placeholder="Ex: StreamKing">
+                            </div>
+                            <div class="form-group">
+                                <label for="fornecedor-status">Status</label>
+                                <select id="fornecedor-status">
+                                    <option value="ativo">Ativo</option>
+                                    <option value="inativo">Inativo</option>
+                                    <option value="suspenso">Suspenso</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fornecedor-tipo-contato">Tipo de Contato *</label>
+                                <select id="fornecedor-tipo-contato" required>
+                                    <option value="telegram">Telegram</option>
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="email">E-mail</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fornecedor-contato">Contato *</label>
+                                <input type="text" id="fornecedor-contato" required placeholder="@username ou +5511999999999">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fornecedor-avaliacao">Avaliação (1-5)</label>
+                                <div class="rating-input">
+                                    <div class="stars" id="rating-stars">
+                                        <i class="fas fa-star" data-rating="1"></i>
+                                        <i class="fas fa-star" data-rating="2"></i>
+                                        <i class="fas fa-star" data-rating="3"></i>
+                                        <i class="fas fa-star" data-rating="4"></i>
+                                        <i class="fas fa-star" data-rating="5"></i>
+                                    </div>
+                                    <input type="hidden" id="fornecedor-avaliacao" value="3">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fornecedor-observacoes">Observações</label>
+                            <textarea id="fornecedor-observacoes" rows="3" placeholder="Experiência, confiabilidade, problemas comuns..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="hidden" id="fornecedor-id">
+                        <button type="button" class="btn-secondary" onclick="closeModal('modal-fornecedor')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Fornecedor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nova Venda -->
+    <div id="modal-venda" class="modal-overlay">
+        <div class="modal wide-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-cart-plus"></i> Nova Venda</h2>
+                <button class="close-icon" onclick="closeModal('modal-venda')">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="venda-form">
+                    <div class="form-section">
+                        <h3><i class="fas fa-user"></i> Cliente</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="venda-cliente">Cliente *</label>
+                                <select id="venda-cliente" required>
+                                    <option value="">Selecione um cliente</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="venda-fornecedor">Fornecedor</label>
+                                <select id="venda-fornecedor">
+                                    <option value="">Selecione um fornecedor (opcional)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-list-alt"></i> Serviços da Venda</h3>
+                        <div class="venda-servicos-container">
+                            <div class="servicos-selection">
+                                <div class="search-box small">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="search-servico-venda" placeholder="Buscar serviço...">
+                                </div>
+                                <div class="servicos-list" id="servicos-list-venda">
+                                    <!-- Serviços serão carregados aqui -->
+                                </div>
+                            </div>
+                            <div class="selected-servicos">
+                                <h4>Serviços Selecionados</h4>
+                                <div id="selected-servicos-list"></div>
+                                <div class="venda-totals">
+                                    <div class="total-item">
+                                        <span>Custo Total:</span>
+                                        <strong id="venda-custo-total">R$ 0,00</strong>
+                                    </div>
+                                    <div class="total-item">
+                                        <span>Valor da Venda:</span>
+                                        <strong id="venda-valor-total">R$ 0,00</strong>
+                                    </div>
+                                    <div class="total-item">
+                                        <span>Lucro Estimado:</span>
+                                        <strong id="venda-lucro-total" class="text-success">R$ 0,00</strong>
+                                    </div>
+                                    <div class="total-item">
+                                        <span>Margem:</span>
+                                        <strong id="venda-margem-total" class="text-info">0%</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-credit-card"></i> Informações da Venda</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="venda-status">Status *</label>
+                                <select id="venda-status" required>
+                                    <option value="concluida">Concluída</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="cancelada">Cancelada</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="venda-metodo-pagamento">Método de Pagamento</label>
+                                <select id="venda-metodo-pagamento">
+                                    <option value="pix">PIX</option>
+                                    <option value="cartao">Cartão</option>
+                                    <option value="boleto">Boleto</option>
+                                    <option value="transferencia">Transferência</option>
+                                    <option value="dinheiro">Dinheiro</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="venda-observacoes">Observações</label>
+                            <textarea id="venda-observacoes" rows="3" placeholder="Detalhes sobre a venda..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="hidden" id="venda-id">
+                        <button type="button" class="btn-secondary" onclick="closeModal('modal-venda')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Venda
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes Venda -->
+    <div id="modal-detalhes-venda" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> Detalhes da Venda</h2>
+                <button class="close-icon" onclick="closeModal('modal-detalhes-venda')">&times;</button>
+            </div>
+            <div class="modal-body" id="detalhes-venda-content">
+                <!-- Conteúdo será preenchido via JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-detalhes-venda')">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+                <button type="button" class="btn-primary" id="btn-editar-venda">
+                    <i class="fas fa-edit"></i> Editar Venda
+                </button>
+                <button type="button" class="btn-danger" id="btn-excluir-venda">
+                    <i class="fas fa-trash"></i> Excluir Venda
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmação -->
+    <div id="modal-confirmacao" class="modal-overlay">
+        <div class="modal small-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> <span id="confirm-title">Confirmar Ação</span></h3>
+                <button class="close-icon" onclick="closeModal('modal-confirmacao')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Tem certeza que deseja realizar esta ação?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-confirmacao')">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" id="confirm-action-btn" class="btn-danger">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
