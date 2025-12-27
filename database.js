@@ -38,7 +38,7 @@ class Database {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
                 contato TEXT,
-                tipo_contato TEXT DEFAULT 'telegram', -- telegram, whatsapp, email
+                tipo_contato TEXT DEFAULT 'telegram',
                 avaliacao REAL DEFAULT 3.0,
                 status TEXT DEFAULT 'ativo',
                 observacoes TEXT,
@@ -325,7 +325,7 @@ class Database {
 
     getVendaItens(vendaId, callback) {
         this.db.all(`
-            SELECT vi.*, s.nome as servico_nome, s.categoria
+            SELECT vi.*, s.nome as servico_nome, s.categoria, s.duracao
             FROM venda_itens vi
             JOIN servicos s ON vi.servico_id = s.id
             WHERE vi.venda_id = ?
@@ -335,7 +335,9 @@ class Database {
     createVenda(venda, itens, callback) {
         const { cliente_id, fornecedor_id, total_custo, total_venda, total_lucro, status, metodo_pagamento, observacoes } = venda;
         
-        this.db.run(`
+        const db = this.db;
+        
+        db.run(`
             INSERT INTO vendas (cliente_id, fornecedor_id, total_custo, total_venda, total_lucro, status, metodo_pagamento, observacoes)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `, [cliente_id, fornecedor_id, total_custo, total_venda, total_lucro, status, metodo_pagamento, observacoes], function(err) {
@@ -347,67 +349,262 @@ class Database {
             const vendaId = this.lastID;
             
             // Inserir itens da venda
-            const stmt = this.db.prepare(`
+            const stmt = db.prepare(`
                 INSERT INTO venda_itens (venda_id, servico_id, quantidade, custo_unitario, preco_unitario)
                 VALUES (?, ?, ?, ?, ?)
             `);
             
+            let errorOccurred = false;
+            let processed = 0;
+            
             itens.forEach(item => {
-                stmt.run([vendaId, item.servico_id, item.quantidade, item.custo_unitario, item.preco_unitario]);
+                stmt.run([vendaId, item.servico_id, item.quantidade, item.custo_unitario, item.preco_unitario], (err) => {
+                    if (err) {
+                        errorOccurred = true;
+                        callback(err);
+                        return;
+                    }
+                    
+                    processed++;
+                    if (processed === itens.length) {
+                        stmt.finalize((err) => {
+                            if (err) {
+                                callback(err);
+                                return;
+                            }
+                            
+                            // Criar assinaturas
+                            createAssinaturas(vendaId, cliente_id, fornecedor_id, itens, callback);
+                        });
+                    }
+                });
             });
             
-            stmt.finalize((err) => {
+            if (itens.length === 0) {
+                stmt.finalize((err) => {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    callback(null, { id: vendaId });
+                });
+            }
+        });
+        
+        const createAssinaturas = (vendaId, clienteId, fornecedorId, itens, callback) => {
+            if (itens.length === 0) {
+                callback(null, { id: vendaId });
+                return;
+            }
+            
+            const assinaturaStmt = db.prepare(`
+                INSERT INTO assinaturas (cliente_id, servico_id, fornecedor_id, data_compra, data_vencimento, custo, preco, status, link_acesso, codigo_compra)
+                VALUES (?, ?, ?, date('now'), date('now', '+' || ? || ' month'), ?, ?, 'ativo', ?, ?)
+            `);
+            
+            let errorOccurred = false;
+            let processed = 0;
+            
+            itens.forEach(item => {
+                assinaturaStmt.run([
+                    clienteId, 
+                    item.servico_id, 
+                    fornecedorId, 
+                    item.duracao || 1,
+                    item.custo_unitario,
+                    item.preco_unitario,
+                    item.link_acesso || '',
+                    item.codigo_compra || 'COD-' + Date.now() + '-' + item.servico_id
+                ], (err) => {
+                    if (err) {
+                        errorOccurred = true;
+                        callback(err);
+                        return;
+                    }
+                    
+                    processed++;
+                    if (processed === itens.length) {
+                        assinaturaStmt.finalize((err) => {
+                            if (err) {
+                                callback(err);
+                                return;
+                            }
+                            callback(null, { id: vendaId });
+                        });
+                    }
+                });
+            });
+        };
+    }
+
+    updateVenda(id, venda, itens, callback) {
+        const { cliente_id, fornecedor_id, total_custo, total_venda, total_lucro, status, metodo_pagamento, observacoes } = venda;
+        const db = this.db;
+        
+        // Atualizar dados da venda
+        db.run(`
+            UPDATE vendas 
+            SET cliente_id = ?, fornecedor_id = ?, total_custo = ?, total_venda = ?, 
+                total_lucro = ?, status = ?, metodo_pagamento = ?, observacoes = ?
+            WHERE id = ?
+        `, [cliente_id, fornecedor_id, total_custo, total_venda, total_lucro, status, metodo_pagamento, observacoes, id], (err) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Atualizar itens da venda
+            this.updateVendaItens(id, itens, (err) => {
                 if (err) {
                     callback(err);
                     return;
                 }
                 
-                // Criar assinaturas para o cliente
-                const assinaturaStmt = this.db.prepare(`
-                    INSERT INTO assinaturas (cliente_id, servico_id, fornecedor_id, data_compra, data_vencimento, custo, preco, status, link_acesso, codigo_compra)
-                    VALUES (?, ?, ?, date('now'), date('now', '+' || ? || ' month'), ?, ?, 'ativo', ?, ?)
-                `);
-                
-                itens.forEach(item => {
-                    assinaturaStmt.run([
-                        cliente_id, 
-                        item.servico_id, 
-                        fornecedor_id, 
-                        item.duracao || 1,
-                        item.custo_unitario,
-                        item.preco_unitario,
-                        item.link_acesso,
-                        item.codigo_compra
-                    ]);
-                });
-                
-                assinaturaStmt.finalize((err) => {
-                    callback(err, { id: vendaId });
+                // Atualizar assinaturas
+                this.updateAssinaturasVenda(id, cliente_id, fornecedor_id, itens, (err) => {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    
+                    callback(null, { id });
                 });
             });
         });
     }
 
-    updateVenda(id, venda, callback) {
-        const { cliente_id, fornecedor_id, total_custo, total_venda, total_lucro, status, metodo_pagamento, observacoes } = venda;
-        this.db.run(`
-            UPDATE vendas 
-            SET cliente_id = ?, fornecedor_id = ?, total_custo = ?, total_venda = ?, 
-                total_lucro = ?, status = ?, metodo_pagamento = ?, observacoes = ?
-            WHERE id = ?
-        `, [cliente_id, fornecedor_id, total_custo, total_venda, total_lucro, status, metodo_pagamento, observacoes, id], callback);
+    updateVendaItens(vendaId, itens, callback) {
+        const db = this.db;
+        
+        // Remover itens antigos
+        db.run('DELETE FROM venda_itens WHERE venda_id = ?', [vendaId], (err) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            if (itens.length === 0) {
+                callback(null);
+                return;
+            }
+            
+            // Inserir novos itens
+            const stmt = db.prepare(`
+                INSERT INTO venda_itens (venda_id, servico_id, quantidade, custo_unitario, preco_unitario)
+                VALUES (?, ?, ?, ?, ?)
+            `);
+            
+            let errorOccurred = false;
+            let processed = 0;
+            
+            itens.forEach(item => {
+                stmt.run([vendaId, item.servico_id, item.quantidade, item.custo_unitario, item.preco_unitario], (err) => {
+                    if (err) {
+                        errorOccurred = true;
+                        callback(err);
+                        return;
+                    }
+                    
+                    processed++;
+                    if (processed === itens.length) {
+                        stmt.finalize((err) => {
+                            callback(err);
+                        });
+                    }
+                });
+            });
+        });
+    }
+
+    updateAssinaturasVenda(vendaId, clienteId, fornecedorId, itens, callback) {
+        const db = this.db;
+        
+        // Primeiro, remover assinaturas antigas desta venda
+        const deleteQuery = `
+            DELETE FROM assinaturas 
+            WHERE cliente_id = ? 
+            AND servico_id IN (
+                SELECT servico_id FROM venda_itens WHERE venda_id = ?
+            )
+        `;
+        
+        db.run(deleteQuery, [clienteId, vendaId], (err) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            if (itens.length === 0) {
+                callback(null);
+                return;
+            }
+            
+            // Criar novas assinaturas
+            const stmt = db.prepare(`
+                INSERT INTO assinaturas (cliente_id, servico_id, fornecedor_id, data_compra, data_vencimento, custo, preco, status, link_acesso, codigo_compra)
+                VALUES (?, ?, ?, date('now'), date('now', '+' || ? || ' month'), ?, ?, 'ativo', ?, ?)
+            `);
+            
+            let errorOccurred = false;
+            let processed = 0;
+            
+            itens.forEach(item => {
+                stmt.run([
+                    clienteId, 
+                    item.servico_id, 
+                    fornecedorId, 
+                    item.duracao || 1,
+                    item.custo_unitario,
+                    item.preco_unitario,
+                    item.link_acesso || '',
+                    item.codigo_compra || 'COD-' + Date.now() + '-' + item.servico_id
+                ], (err) => {
+                    if (err) {
+                        errorOccurred = true;
+                        callback(err);
+                        return;
+                    }
+                    
+                    processed++;
+                    if (processed === itens.length) {
+                        stmt.finalize((err) => {
+                            callback(err);
+                        });
+                    }
+                });
+            });
+        });
     }
 
     deleteVenda(id, callback) {
+        const db = this.db;
+        
         // Primeiro, deletar itens da venda
-        this.db.run('DELETE FROM venda_itens WHERE venda_id = ?', [id], (err) => {
+        db.run('DELETE FROM venda_itens WHERE venda_id = ?', [id], (err) => {
             if (err) {
                 callback(err);
                 return;
             }
             
             // Depois, deletar a venda
-            this.db.run('DELETE FROM vendas WHERE id = ?', [id], callback);
+            db.run('DELETE FROM vendas WHERE id = ?', [id], (err) => {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                
+                // Remover assinaturas relacionadas
+                db.run(`
+                    DELETE FROM assinaturas 
+                    WHERE cliente_id IN (
+                        SELECT cliente_id FROM vendas WHERE id = ?
+                    ) AND servico_id IN (
+                        SELECT servico_id FROM venda_itens WHERE venda_id = ?
+                    )
+                `, [id, id], (err) => {
+                    callback(err);
+                });
+            });
         });
     }
 

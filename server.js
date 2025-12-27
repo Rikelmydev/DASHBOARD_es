@@ -346,6 +346,38 @@ app.get('/api/relatorios/top-servicos/:limit?', (req, res) => {
     });
 });
 
+// No server.js, adicione estas rotas após as rotas de DELETE /api/vendas/:id
+
+// Rota para atualizar venda (PUT)
+app.put('/api/vendas/:id', (req, res) => {
+    const { venda, itens } = req.body;
+    
+    // Validar dados
+    if (!venda || !itens || itens.length === 0) {
+        res.status(400).json({ error: 'Dados da venda incompletos' });
+        return;
+    }
+    
+    db.updateVenda(req.params.id, venda, itens, (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ id: req.params.id, message: 'Venda atualizada com sucesso' });
+    });
+});
+
+// Rota para excluir venda (DELETE)
+app.delete('/api/vendas/:id', (req, res) => {
+    db.deleteVenda(req.params.id, (err) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ message: 'Venda excluída com sucesso' });
+    });
+});
+
 // Rota para servir o frontend
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
